@@ -1,0 +1,285 @@
+import pandas as pd
+from collections import defaultdict
+import d2
+from PyQt5.QtWidgets import QApplication, QFileDialog
+#Manuel seçme
+# app = QApplication([])
+# file_path, _ = QFileDialog.getOpenFileName(None, "Dosya Seç", "", "Excel Dosyaları (*.xlsx)")
+#
+# if file_path:
+#     df = pd.read_excel(file_path, sheet_name='Sayfa1')
+# data = df.values.tolist()
+#print("data", data)
+
+df = pd.read_excel(r'C:\Users\cansin\Desktop\x.xlsx', sheet_name='Sayfa1')
+data = df.values.tolist()
+
+country_data = {
+    "AT": {"name": "Avusturya", "tir": 23000, "20'": None, "40'": None},
+    "BG": {"name": "Bulgaristan", "tir": 23500, "20'": None, "40'": None},
+    "CH": {"name": "İsviçre", "tir": 22000, "20'": None, "40'": 25000},
+    "CZ": {"name": "Çekya", "tir": 21500, "20'": None, "40'": None},
+    "DE": {"name": "Almanya", "tir": 23000, "20'": None, "40'": 25000},
+    "ES": {"name": "İspanya", "tir": None, "20'": 23000, "40'": 22000},
+    "FR": {"name": "Fransa", "tir": None, "20'": 26000, "40'": 25000},
+    "GB": {"name": "İngiltere", "tir": None, "20'": 26, "40'": 25000},
+    "HR": {"name": "Hırvatistan", "tir": None, "20'": None, "40'": 22000},
+    "HU": {"name": "Macaristan", "tir": 22500, "20'": None, "40'": None},
+    "IE": {"name": "İrlanda", "tir": None, "20'": None, "40'": 24000},
+    "IL": {"name": "İsrail", "tir": None, "20'": 26000, "40'": 25000},
+    "IT": {"name": "İtalya", "tir": 26000, "20'": 26000, "40'": 25000},
+    "MK": {"name": "Makedonya", "tir": 23500, "20'": None, "40'": None},
+    "MT": {"name": "Malta", "tir": None, "20'": 26000, "40'": 25000},
+    "NO": {"name": "Norveç", "tir": None, "20'": None, "40'": 25000},
+    "PL": {"name": "Polonya", "tir": 23000, "20'": None, "40'": None},
+    "RO": {"name": "Romanya", "tir": 23500, "20'": None, "40'": None},
+    "SE": {"name": "İsveç", "tir": None, "20'": None, "40'": 25000},
+    "SI": {"name": "Slovenya", "tir": 23000, "20'": None, "40'": None},
+    "SK": {"name": "Slovakya", "tir": 23000, "20'": None, "40'": None},
+    "US": {"name": "ABD", "tir": None, "20'": 19500, "40'": 19500},
+    "ZA": {"name": "Güney Afrika", "tir": None, "20'": 20000, "40'": None}
+}
+new_data = []
+for row in data:
+    if row[:4] not in [r[:4] for r in new_data]:
+        new_data.append(row[:4] + [row[5] * row[6]])
+    else:
+        index = [r[:4] for r in new_data].index(row[:4])
+        new_data[index][-1] += row[5] * row[6]
+
+#print("new data", new_data)
+
+# 4. ve 5. elemanları aynı olan verilerin 6. elemanlarının toplamını hesaplamak için bir sözlük oluşturun
+total_dict = {}
+for row in data:
+    key = (row[3], row[4])  # 4. ve 5. elemanlar birleştirilerek sözlük anahtarı yapılıyor
+    if key in total_dict:
+        total_dict[key] += row[6]  # 6. eleman toplanıyor
+    else:
+        total_dict[key] = row[6]  # yeni bir anahtar ekleniyor
+
+# İstenen çıktıya uygun olarak bir liste oluşturun
+Gpalet = [[key[0], key[1], total_dict[key]] for key in total_dict.keys()]
+#print("palet", Gpalet)
+grouped_data = defaultdict(list)
+
+for row in new_data:
+    grouped_data[row[1]].append(row)
+
+for key, group in grouped_data.items():
+
+    group_list = list(group)
+    sayi_kumesi_a = [row[4] for row in group_list]
+    Siparis_kumesi = [row[3] for row in group_list]
+    merged = list(zip(sayi_kumesi_a, Siparis_kumesi))
+    #print("Merged", merged)
+    gecici_sayi_kumesi = merged.copy()
+    #print("group", group_list)
+    for item in group:
+        key3 = item[2]
+
+    for item in group:
+        key2 = item[0]
+    # get country capacity data from dictionary
+    ulke_kapasitesi = country_data.get(key2)
+    print(key3 + " " + key + " için seçimler:")
+    # check if capacity data exists for each container type
+    if ulke_kapasitesi:
+        tir_kapasite = ulke_kapasitesi.get("tir")
+        twenty_kapasite = ulke_kapasitesi.get("20'")
+        forty_kapasite = ulke_kapasitesi.get("40'")
+    else:
+        tir_kapasite = None
+        twenty_kapasite = None
+        forty_kapasite = None
+
+    # Veri
+
+    # perform loading calculation for each container type
+    def twenty():
+        while len(gecici_sayi_kumesi) > 0:
+            print()
+            print()
+            print()
+            print("Geçici : ", gecici_sayi_kumesi)
+            print()
+            print()
+            print()
+            # sayı kümesindeki sayıları büyükten küçüğe sıralama
+            # print("Geçiciiiiiiiii", gecici_sayi_kumesi)
+            gecici_sayi_kumesi.sort(key=lambda x: x[0], reverse=True)
+            # print("Geçiciiiiiiiii sorted", gecici_sayi_kumesi)
+            # seçilen sayıları ve eşleşen sayıları depolamak için bir liste oluşturma
+            secilen_sayilar = []
+            siparisler = []
+            Siplipaletler = []
+            # kapasite sınırını aşmayacak şekilde sayıları seçme
+            for sayi_tuple in gecici_sayi_kumesi:
+
+                if sum(secilen_sayilar) + sayi_tuple[0] <= twenty_kapasite:
+                    secilen_sayilar.append(sayi_tuple[0])
+                    siparisler.append(sayi_tuple[1])
+                    for row in Gpalet:
+                        if row[0] == sayi_tuple[1]:
+                            Siplipaletler.append(row)
+
+            sum_dict = {}
+            for p in Siplipaletler:
+                if p[1] not in sum_dict:
+                    sum_dict[p[1]] = p[2]
+                else:
+                    sum_dict[p[1]] += p[2]
+
+            # Yeni liste oluştur ve sonuçları ekle
+            Toplam_Palet = []
+            for k, v in sum_dict.items():
+                Toplam_Palet.append([k, v])
+
+            pallet_counts = {}
+            height = d2.solve(Toplam_Palet, pallet_counts)
+
+            # seçilen sayıları ve eşleşen sayıları ekrana yazdırma ve orijinal listeyi güncelleme
+            print("  Seçilen sayılar:", secilen_sayilar)
+            print("  Siparişler:", siparisler)
+            print("  Sipariş ve Paletler:", Siplipaletler)
+
+            # print(d2.add_pallet(Toplam_Palet,pallet_counts))
+
+            print("  Uzunluk ", height)
+            print("  Toplam Paletler:", Toplam_Palet)
+
+            print()
+            print()
+            print()
+            print("Geçici : ",gecici_sayi_kumesi)
+            print()
+            print()
+            print()
+            if
+            for sayi in secilen_sayilar:
+                for i in range(len(gecici_sayi_kumesi)):
+                    if gecici_sayi_kumesi[i][0] == sayi:
+                        gecici_sayi_kumesi.pop(i)
+                        break
+
+            print("  Toplamları: ", sum(secilen_sayilar))
+            print()
+
+    if twenty_kapasite is not None:
+        print("20' yüklemesi için:")
+        print()
+        twenty()
+
+    else:
+        print("20' için Kapasite bilgisi bulunamadı.")
+
+    if forty_kapasite is not None:
+        print("40' yüklemesi için:")
+
+        # print(gecici_sayi_kumesi)
+        while len(gecici_sayi_kumesi) > 0:
+            # sayı kümesindeki sayıları büyükten küçüğe sıralama
+            gecici_sayi_kumesi.sort(key=lambda x: x[0], reverse=True)
+            print()
+            # seçilen sayıları ve eşleşen sayıları depolamak için bir liste oluşturma
+            secilen_sayilar = []
+            siparisler = []
+            Siplipaletler = []
+            # kapasite sınırını aşmayacak şekilde sayıları seçme
+            for sayi_tuple in gecici_sayi_kumesi:
+
+                if sum(secilen_sayilar) + sayi_tuple[0] <= forty_kapasite:
+                    secilen_sayilar.append(sayi_tuple[0])
+                    siparisler.append(sayi_tuple[1])
+                    for row in Gpalet:
+                        if row[0] == sayi_tuple[1]:
+                            Siplipaletler.append(row)
+
+            sum_dict = {}
+            for p in Siplipaletler:
+                if p[1] not in sum_dict:
+                    sum_dict[p[1]] = p[2]
+                else:
+                    sum_dict[p[1]] += p[2]
+
+            # Yeni liste oluştur ve sonuçları ekle
+            Toplam_Palet = []
+            for k, v in sum_dict.items():
+                Toplam_Palet.append([k, v])
+
+            # seçilen sayıları ve eşleşen sayıları ekrana yazdırma ve orijinal listeyi güncelleme
+            print("  Seçilen sayılar:", secilen_sayilar)
+            print("  Siparişler:", siparisler)
+            print("  Sipariş ve Paletler:", Siplipaletler)
+            pallet_counts = {}
+            # print(d2.add_pallet(Toplam_Palet,pallet_counts))
+            height = d2.solve(Toplam_Palet, pallet_counts)
+            print("  Uzunluk ",height)
+            print("  Toplam Paletler:", Toplam_Palet)
+            for sayi in secilen_sayilar:
+                for i in range(len(gecici_sayi_kumesi)):
+                    if gecici_sayi_kumesi[i][0] == sayi:
+                        gecici_sayi_kumesi.pop(i)
+                        break
+
+            print("  Toplamları: ", sum(secilen_sayilar))
+            print()
+    else:
+        print("40' için Kapasite bilgisi bulunamadı.")
+
+
+    if tir_kapasite is not None:
+        print("TIR yüklemesi için:")
+
+        # print(gecici_sayi_kumesi)
+        while len(gecici_sayi_kumesi) > 0:
+            # sayı kümesindeki sayıları büyükten küçüğe sıralama
+            gecici_sayi_kumesi.sort(key=lambda x: x[0], reverse=True)
+            print()
+            # seçilen sayıları ve eşleşen sayıları depolamak için bir liste oluşturma
+            secilen_sayilar = []
+            siparisler = []
+            Siplipaletler = []
+            # kapasite sınırını aşmayacak şekilde sayıları seçme
+            for sayi_tuple in gecici_sayi_kumesi:
+
+                if sum(secilen_sayilar) + sayi_tuple[0] <= tir_kapasite:
+                    secilen_sayilar.append(sayi_tuple[0])
+                    siparisler.append(sayi_tuple[1])
+                    for row in Gpalet:
+                        if row[0] == sayi_tuple[1]:
+                            Siplipaletler.append(row)
+
+            sum_dict = {}
+            for p in Siplipaletler:
+                if p[1] not in sum_dict:
+                    sum_dict[p[1]] = p[2]
+                else:
+                    sum_dict[p[1]] += p[2]
+
+            # Yeni liste oluştur ve sonuçları ekle
+            Toplam_Palet = []
+            for k, v in sum_dict.items():
+                Toplam_Palet.append([k, v])
+
+            # seçilen sayıları ve eşleşen sayıları ekrana yazdırma ve orijinal listeyi güncelleme
+            print("  Seçilen sayılar:", secilen_sayilar)
+            print("  Siparişler:", siparisler)
+            print("  Sipariş ve Paletler:", Siplipaletler)
+            pallet_counts = {}
+            #print(d2.add_pallet(Toplam_Palet,pallet_counts))
+            height=d2.solve(Toplam_Palet,pallet_counts)
+            print("  Uzunluk ",height)
+            print("  Toplam Paletler:", Toplam_Palet)
+
+            for sayi in secilen_sayilar:
+                for i in range(len(gecici_sayi_kumesi)):
+                    if gecici_sayi_kumesi[i][0] == sayi:
+                        gecici_sayi_kumesi.pop(i)
+                        break
+
+            print("  Toplamları: ", sum(secilen_sayilar))
+            print()
+    else:
+        print("TIR için kapasite bilgisi bulunamadı.")
+        print()
