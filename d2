@@ -1,0 +1,222 @@
+from tkinter import ttk
+from tkinter import *
+from tkinter import IntVar
+from rectpack import newPacker, GuillotineBssfSas, GuillotineBssfLas, GuillotineBssfSlas, GuillotineBssfMaxas, \
+    GuillotineBssfMinas, GuillotineBlsfSas, GuillotineBlsfLas, GuillotineBlsfSlas, GuillotineBlsfLlas, \
+    GuillotineBlsfMaxas, GuillotineBlsfMinas, GuillotineBafSas, GuillotineBafLas, GuillotineBafSlas, GuillotineBafLlas, \
+    GuillotineBafMaxas, GuillotineBafMinas, MaxRectsBl, MaxRectsBssf, MaxRectsBaf, MaxRectsBlsf, SkylineBl, SkylineBlWm, \
+    SkylineMwf, SkylineMwfl, SkylineMwfWm, SkylineMwflWm
+import matplotlib.pyplot as plt
+from rectpack.packer import Packer, SORT_RATIO, PackingMode
+
+pallets = [{"id":46063013,"name":"AHŞAP PALET TEKLİ 560-630 DİK (R4-512)", "dimensions":[560,660]},
+{"id":46040011,"name":"AHŞAP PALET TEKLİ 400LÜK DİK", "dimensions":[500,501]},
+{"id":46063011,"name":"AHŞ.1 Lİ 630 YATIK (R4-187)", "dimensions":[680,680]},
+{"id":46063015,"name":"AHŞ.1 Lİ 630 YATIK 700X700 (R4-2621)", "dimensions":[700,700]},
+{"id":46063021,"name":"AHŞ.2 Lİ 630 (R4-235)", "dimensions":[650,980]},
+{"id":46063022,"name":"AHŞ.2 Lİ 630 KLASING İÇİN (R4-1155)", "dimensions":[800,1200]},
+{"id":46056041,"name":"AHŞ.4 LÜ 560 PLS ALT (R4-195)", "dimensions":[901,1150]},
+{"id":46056042,"name":"AHŞ.4 LÜ 560 PLS ARA (R4-195)", "dimensions":[900,1150]},
+{"id":46063041,"name":"AHŞ.4 LÜ 630 AHŞ ALT (R4-3585)", "dimensions":[981,1280]},
+{"id":46063042,"name":"AHŞ.4 LÜ 630 AHŞ ARA (R4-3585)", "dimensions":[980,1280]},
+{"id":46005991,"name":"AHŞ.SUMİ TEKSAS (R4-338)", "dimensions":[711,1020]},
+{"id":46005992,"name":"AHŞ.SUMİ TEKSAS (R4-338)", "dimensions":[710,1020]},
+{"id":46080011,"name":"AHŞ.1 Lİ 800 (R4-376)", "dimensions":[620,820]},
+{"id":46080012,"name":"AHŞ.1 Lİ 800 YATIK (R4-389)", "dimensions":[840,840]},
+{"id":46040061,"name":"AHŞ.6 LI 400 ARA (R4-191)", "dimensions":[841,900]},
+{"id":46040062,"name":"AHŞ. 6 LI 400 ALT (R4-191)", "dimensions":[840,900]},
+{"id":46025121,"name":"AHŞ.PALET Ø250 12Lİ ALT (R4-1174)", "dimensions":[771,870]},
+{"id":46025122,"name":"AHŞ.PALET Ø250 12Lİ ARA (R4-1175)", "dimensions":[770,870]},
+{"id":46025301,"name":"AHŞ.30 LU TYCO 250 ALT (R4-662)", "dimensions":[1001,1080]},
+{"id":46025302,"name":"AHŞ.30 LU TYCO 250 ARA (R4-662A)", "dimensions":[1000,1080]},
+{"id":46025481,"name":"AHŞ.48 Lİ 250 ALT (R4-189)", "dimensions":[871,1020]},
+{"id":46025482,"name":"AHŞ.48 Lİ 250 ARA (R4-190)", "dimensions":[870,1020]},
+{"id":46016001,"name":"AHŞAP PALET Ø 160 ALT (R4-864)", "dimensions":[1031,1030]},
+{"id":46016002,"name":"AHŞAP PALET Ø 160 ARA (R4-864)", "dimensions":[1030,1030]},
+{"id":46100201,"name":"AHŞ.KANGAL KASASI (R4-585)", "dimensions":[1090,1090]},
+{"id":46000011,"name":"AHŞ.KARTON SEPET (R4-227)", "dimensions":[1100,1100]},
+{"id":41000005,"name":"KARTON SEPET(NİKEL)", "dimensions":[900,900]},
+{"id":46000013,"name":"JUMBO KANGAL AHŞ. PALETİ", "dimensions":[1050,1050]},
+{"id":46080013,"name":"AHŞ.1 Lİ 800 GENİŞ (R4-1799)", "dimensions":[760,820]},
+{"id":46100011,"name":"AHŞ.1 Lİ 1000 (R4-3680)", "dimensions":[1020,820]},
+{"id":46120011,"name":"AHŞ.1 Lİ 1200 (R4-996)", "dimensions":[970,1270]},
+{"id":46000001,"name":"UÇAK KARGO KASASI (R4-1042)", "dimensions":[600,750]},
+{"id":4600001,"name":"UÇAK KARGO KASASI (R4-2331) 400", "dimensions":[500,500]},
+{"id":4600001,"name":"UÇAK KARGO KASASI (R4-2331) 800", "dimensions":[920,660]},
+{"id":47040011,"name":"ÇELİK 1 Lİ 400", "dimensions":[300,410]},
+{"id":47063011,"name":"ÇELİK 1 Lİ 630", "dimensions":[580,635]},
+{"id":47080021,"name":"ÇELİK 2 Lİ 800", "dimensions":[1170,840]},
+{"id":47063022,"name":"ÇELİK 2 Lİ 630", "dimensions":[920,640]},
+{"id":47063021,"name":"ÇELİK 2 Lİ 630 PLS", "dimensions":[970,635]},
+{"id":47063023,"name":"ÇELİK 2 Lİ 630 AYAKLI R4-230", "dimensions":[925,640]},
+{"id":47063024,"name":"ÇELİK 2 Lİ 630 STOKLANABİLEN R4-1128", "dimensions":[1170,710]},
+{"id":47063031,"name":"ÇELİK PALET 3 LÜ 630", "dimensions":[1370,640]},
+{"id":47063041,"name":"ÇELİK PALET 4 LÜ 630", "dimensions":[1040,1310]},
+{"id":47063043,"name":"ÇELİK 4 LÜ 630 MAVİ", "dimensions":[925,1285]},
+{"id":47063032,"name":"ÇELİK 3 LÜ 630 AYAKLI", "dimensions":[1370,640]},
+{"id":47063042,"name":"ÇELİK 4 LÜ 630 SARI R4-233", "dimensions":[1005,1285]},
+{"id":47056041,"name":"ÇELİK 4 LÜ 560 KIRMIZI", "dimensions":[845,1140]},
+{"id":47080011,"name":"ÇELİK 1 Lİ 800", "dimensions":[670,810]},
+{"id":47080012,"name":"ÇELİK 1 Lİ 800 STOKLANABİLEN", "dimensions":[870,675]},
+{"id":47100011,"name":"ÇELİK 1 Lİ 1000 STOKLANABİLEN (R4-3679)", "dimensions":[1120,910]},
+{"id":47040061,"name":"ÇELİK 6 LI 400", "dimensions":[860,830]},
+{"id":47025201,"name":"ÇELİK 250 PLS ALT", "dimensions":[1041,1040]},
+{"id":47025202,"name":"ÇELİK 250 PLS ÜST", "dimensions":[1040,1040]},
+{"id":47025161,"name":"ÇELİK 250 PLS 16'LI", "dimensions":[990,750]},
+{"id":47004991,"name":"ÇELİK HCB ALT", "dimensions":[760,760]},
+{"id":47004992,"name":"ÇELİK HCB ÜST", "dimensions":[770,770]},
+{"id":460630411,"name":"AHŞ.4 LÜ 630 AHŞ ALT Birleştirilmiş 4lü", "dimensions":[2261,2260]},
+{"id":460630421,"name":"AHŞ.4 LÜ 630 AHŞ ARA Birleştirilmiş 4lü", "dimensions":[2260,2260]},
+{"id":461200111,"name":"AHŞ.1 Lİ 1200 (R4-996) Birleştirilmiş 4lü", "dimensions":[2240,2240]},
+{"id":470630431,"name":"ÇELİK 4 LÜ 630 MAVİ Birleştirilmiş 4lü", "dimensions":[2210,2210]},
+{"id":470630421,"name":"ÇELİK 4 LÜ 630 SARI Birleştirilmiş 4lü", "dimensions":[2290,2290]}]
+pallet_counts={}
+pallet_counts2 = {}
+def add_pallet(Toplam_Palet, pallet_counts):
+    pallet_id = []
+    for pallet in Toplam_Palet:
+        pallet_id = pallet[0]
+        pallet_count = pallet[1]
+        pallet_counts[pallet_id] = pallet_counts.get(pallet_id, 0) + pallet_count
+
+    return pallet_counts
+
+bins40 = [(2350, 12030), (2350, 12030)]
+
+def solve(Toplam_Palet,pallet_counts):
+        x = 0
+        pallet_counts=add_pallet(Toplam_Palet,pallet_counts)
+
+
+        pallet_counts2 = pallet_counts.copy()
+
+        pallet_list = {tuple(pallet["dimensions"]): pallet_counts.get(pallet["id"], 0) for pallet in pallets}
+
+        pallet_list2 = pallet_list.copy()
+        pallet_list3 = pallet_list.copy()
+        pallet_list4 = pallet_list.copy()
+        height = 0
+        height1 = 0
+        height2 = 0
+        height3 = 0
+        height4 = 0
+        height1 = solver(pallet_list, [bins40[0]], x)
+        # Update the pallet_list with the new counts
+
+        pallet_counts3 = pallet_counts.copy()
+        key_pair2 = [(46120011), (47063043), (47063042), (46063041), (46063042)]
+        for key1 in key_pair2:
+            #print(key1)
+            if (pallet_counts3).get(key1, 0) >= 4:
+                tams = int((pallet_counts3).get(key1, 0) / 4)
+                kalan = (pallet_counts3).get(key1, 0) - (tams * 4)
+                if (key1 == 46120011):
+                    pallet_counts3[461200111] = tams
+                    pallet_counts3[key1] = kalan
+                    #print(tams)
+                    # print(kalan)
+                elif (key1 == 47063043):
+                    pallet_counts3[470630431] = tams
+                    pallet_counts3[key1] = kalan
+                    # print(tams)
+                    # print(kalan)
+                elif (key1 == 46063041):
+                    pallet_counts3[460630411] = tams
+                    pallet_counts3[key1] = kalan
+                    #print(tams)
+                    #print(kalan)
+                elif (key1 == 46063042):
+                    pallet_counts3[460630421] = tams
+                    pallet_counts3[key1] = kalan
+                    #print(tams)
+                    #print(kalan)
+                else:
+                    pallet_counts3[47063042] = tams
+                    pallet_counts3[key1] = kalan
+                    #print(tams)
+                    #print(kalan)
+        pallet_list3 = {tuple(pallet["dimensions"]): pallet_counts3.get(pallet["id"], 0) for pallet in pallets}
+        height3 = solver(pallet_list3, [bins40[0]], x)
+        pallet_counts4 = pallet_counts3.copy()
+
+
+
+        #print(height)
+        #print(height1)
+        #print(height2)
+        #print(height3)
+        #print(height4)
+        heights = [h for h in [height1, height2, height3, height4] if h > 0]
+        if heights:
+            height = min(heights)
+        x = 1
+        if height == height1:
+            pallet_list = {tuple(pallet["dimensions"]): pallet_counts.get(pallet["id"], 0) for pallet in pallets}
+            height1 = solver(pallet_list, [bins40[0]], x)
+        elif height == height2:
+            pallet_list2 = {tuple(pallet["dimensions"]): pallet_counts2.get(pallet["id"], 0) for pallet in pallets}
+            height2 = solver(pallet_list2, [bins40[0]], x)
+        elif height == height3:
+            pallet_list3 = {tuple(pallet["dimensions"]): pallet_counts3.get(pallet["id"], 0) for pallet in pallets}
+            height3 = solver(pallet_list3, [bins40[0]], x)
+        else:
+            pallet_list4 = {tuple(pallet["dimensions"]): pallet_counts4.get(pallet["id"], 0) for pallet in pallets}
+            height4 = solver(pallet_list4, [bins40[0]], x)
+        x = 0
+        if height <= 5900:
+            a = "20' kullanılabilir"
+        elif height <= 12030:
+            a = "40' kullanılabilir"
+        elif height <= 13500:
+            a = "Tır kullanılabilir"
+        else:
+            a = "The height is too big, multiple containers needed"
+        return height
+
+def solver(pallet_list, bins,x):
+    # Pallets to load
+
+    rectangles = []
+    for pallet, count in pallet_list.items():
+        rectangles += [pallet for i in range(count)]
+    #print(rectangles)
+    # Build the Packer
+    packer = newPacker(mode=PackingMode.Offline,sort_algo=SORT_RATIO,pack_algo=MaxRectsBl, rotation=True)
+    # Add the rectangles to packing queue
+    for r in rectangles:
+        packer.add_rect(*r)
+
+    # Add the bins where the rectangles will be placed
+    for b in bins:
+        packer.add_bin(*b)
+
+    # Start packing
+    packer.pack()
+
+    # Full rectangle list with coordinates
+    all_rects = packer.rect_list()
+
+    # Pallets with dimensions
+    all_pals = [sorted([p[3], p[4]]) for p in all_rects]
+    height = max([r[2] + r[4] for r in all_rects])
+    height = int(round(height / 10.0) * 10)
+
+    # Count number of each pallet type
+    #if (x == 1):
+    #    plot(all_rects)
+
+    return height
+
+def plot(all_rects):
+
+        # Your existing plotting code
+        plt.figure(figsize=(10, 10))
+        # Loop all rect
+        for rect in all_rects:
+            b, x, y, w, h, rid = rect
+            x1, x2, x3, x4, x5 = x, x + w, x + w, x, x
+            y1, y2, y3, y4, y5 = y, y, y + h, y + h, y
+
+            plt.plot([x1, x2, x3, x4, x5], [y1, y2, y3, y4, y5])
+
+        plt.show()
